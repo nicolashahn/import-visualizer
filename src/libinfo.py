@@ -343,11 +343,13 @@ common_std_lib_modules = {
     'platform',
     'plistlib',
     'poplib',
+    'posix',
     'posixpath',
     'pprint',
     'profile',
     'pstats',
     'pty',
+    'pwd',
     'py_compile',
     'pyclbr',
     'pydoc',
@@ -519,7 +521,9 @@ python2_std_lib_modules = common_std_lib_modules | {
 
 # Python 3 standard library modules (based on Python 3.5.0).
 python3_std_lib_modules = common_std_lib_modules | {
+    '_thread',
     'asyncio',
+    'builtins',
     'collections.abc',
     'concurrent',
     'concurrent.futures',
