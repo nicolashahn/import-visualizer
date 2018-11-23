@@ -414,6 +414,7 @@ common_std_lib_modules = {
     'warnings',
     'wave',
     'weakref',
+    '_weakref',
     'webbrowser',
     'wsgiref',
     'xdrlib',
