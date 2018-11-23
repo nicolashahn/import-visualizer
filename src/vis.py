@@ -54,11 +54,11 @@ def is_std_lib_module(mname):
 
 
 def abs_mod_name(module, root_dir):
-    """ From an absolute path to a .py file, and the root directory, return a
+    """ From a Module's absolute path, and the root directory, return a
     string with how that module would be imported from a script in the root
     directory.
 
-    Example: abs_mod_name('/path/to/mod.py', '/path') -> 'to.mod'
+    Example: abs_mod_name(Module('/path/to/mod.py'), '/path') -> 'to.mod'
     NOTE: no trailing '/' in root_dir
     """
     abs_path = os.path.abspath(module.__file__)
