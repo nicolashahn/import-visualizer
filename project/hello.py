@@ -1,2 +1,2 @@
-import module_a  # user-defined module
+from module_a import func_a # user-defined module
 print('hello')
