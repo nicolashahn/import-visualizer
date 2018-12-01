@@ -4,3 +4,5 @@
 tags
 .mypy_cache/
 venv/
+venv3/
+dag.dot
