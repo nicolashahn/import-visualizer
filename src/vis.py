@@ -10,7 +10,7 @@ import distutils.sysconfig as sysconfig
 from collections import defaultdict
 from modulefinder import ModuleFinder, Module as MFModule
 
-import dagger
+import graphviz
 
 from libinfo import is_py2_std_lib_module, is_py3_std_lib_module
 
@@ -284,15 +284,13 @@ def add_immediate_deps_to_modules(mod_dict):
         module.direct_imports = fq_deps
 
 
-def mod_dict_to_dag(mod_dict):
-    """ Take a module dictionary, and return a dagger.dagger object
+def mod_dict_to_dag(mod_dict, graph_name):
+    """ Take a module dictionary, and return a graphviz.Digraph object
     representing the module import relationships. """
-    dag = dagger.dagger()
+    dag = graphviz.Digraph(graph_name)
     for name, module in mod_dict.items():
-        quoted_name = '"{}"'.format(name)
-        quoted_imports = ['"{}"'.format(di) for di in module.direct_imports]
-        dag.add(quoted_name, quoted_imports)
-    dag.run()
+        for di in module.direct_imports:
+            dag.edge(name, di)
     return dag
 
 
@@ -326,14 +324,15 @@ def main():
         mod_dict = get_modules_in_dir(root_dir)
 
     add_immediate_deps_to_modules(mod_dict)
+    print("Module dependencies:")
     for name, module in sorted(mod_dict.items()):
         print('\n' + name)
         for dep in module.direct_imports:
             print('    ' + dep)
 
-    dag = mod_dict_to_dag(mod_dict)
-    dag.dot(DAG_OUT)
-    print('Graph written to {}'.format(DAG_OUT))
+    project_name = os.path.basename(os.path.abspath(root_dir))
+    dag = mod_dict_to_dag(mod_dict, project_name)
+    dag.view()
 
 
 if __name__ == '__main__':

@@ -6,3 +6,5 @@ tags
 venv/
 venv3/
 dag.dot
+*.gv
+*.gv.pdf

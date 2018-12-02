@@ -1,1 +1,1 @@
-dagger==1.3.0
+graphviz==0.10.1
