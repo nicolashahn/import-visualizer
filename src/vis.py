@@ -287,10 +287,19 @@ def add_immediate_deps_to_modules(mod_dict):
 def mod_dict_to_dag(mod_dict, graph_name):
     """ Take a module dictionary, and return a graphviz.Digraph object
     representing the module import relationships. """
-    dag = graphviz.Digraph(graph_name)
+    dag = graphviz.Digraph(graph_name, format="pdf")
+    # Vendor modules, AKA third-party modules
+    vendor_mods = set()
     for name, module in mod_dict.items():
         for di in module.direct_imports:
-            dag.edge(name, di)
+            # Vendor modules and edges get a different color
+            attrs = {}
+            if di not in mod_dict:
+                attrs["color"] = "blue"
+                if di not in vendor_mods:
+                    dag.node(di, **attrs)
+                    vendor_mods.add(di)
+            dag.edge(name, di, **attrs)
     return dag
 
 
