@@ -63,6 +63,6 @@ Also displays with `graphviz`:
 
 ![](examples/project.png)
 
-Another example graph from a [slightly more substantial project](https://github.com/nicolashahn/set-solver) (blue arrows/nodes indicate vendor modules):
+Another example graph from a [slightly more substantial project](https://github.com/nicolashahn/set-solver) (blue arrows/nodes indicate modules where the code does not live in the project directory [such as modules installed through pip]):
 
 ![](examples/set-solver.png)
