@@ -11,11 +11,7 @@ from modulefinder import ModuleFinder, Module as MFModule
 
 import graphviz
 
-from libinfo import (
-    is_py2_std_lib_module,
-    is_py3_std_lib_module,
-    is_std_lib_module,
-)
+from libinfo import is_std_lib_module
 
 
 # actual opcodes
