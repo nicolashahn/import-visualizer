@@ -3,6 +3,8 @@ Visualize the import relationships between all modules in a python codebase. Wor
 
 __Very much a work in progress.__
 
+Does not yet play well with relative imports (`from .. import blah`). Prefer `from my.abs.path import blah`.
+
 ## Install
 
 Better process coming soon, hopefully.
