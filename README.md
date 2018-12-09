@@ -17,7 +17,7 @@ pip install -r requirements.txt
 __Python 3__
 
 ```
-python3 -m venv venv
+python3 -m venv venv3
 source venv3/bin/activate
 pip install -r requirements.txt
 ```
