@@ -3,6 +3,8 @@ Visualize the import relationships between all modules in a python codebase. Wor
 
 __Very much a work in progress.__
 
+Does not yet play well with relative imports (`from .. import blah`). Prefer `from my.abs.path import blah`.
+
 ## Install
 
 Better process coming soon, hopefully.
@@ -63,6 +65,6 @@ Also displays with `graphviz`:
 
 ![](examples/project.png)
 
-Another example graph from a [slightly more substantial project](https://github.com/nicolashahn/set-solver) (blue arrows/nodes indicate vendor modules):
+Another example graph from a [slightly more substantial project](https://github.com/nicolashahn/set-solver) (blue arrows/nodes indicate modules where the code does not live in the project directory [such as modules installed through pip]):
 
 ![](examples/set-solver.png)
