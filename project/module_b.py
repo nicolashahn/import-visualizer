@@ -1,4 +1,4 @@
-''' Module B. '''
+""" Module B. """
 
 
-CONST_B = 'B'
+CONST_B = "B"

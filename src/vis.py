@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-''' Visualize the import relationships of a python project. '''
+""" Visualize the import relationships of a python project. """
 
 
 import argparse
@@ -15,26 +15,26 @@ from libinfo import is_std_lib_module
 
 
 # actual opcodes
-LOAD_CONST = dis.opmap['LOAD_CONST']
-IMPORT_NAME = dis.opmap['IMPORT_NAME']
-STORE_NAME = dis.opmap['STORE_NAME']
-STORE_GLOBAL = dis.opmap['STORE_GLOBAL']
-POP_TOP = dis.opmap['POP_TOP']
-POP_BLOCK = dis.opmap['POP_BLOCK']
+LOAD_CONST = dis.opmap["LOAD_CONST"]
+IMPORT_NAME = dis.opmap["IMPORT_NAME"]
+STORE_NAME = dis.opmap["STORE_NAME"]
+STORE_GLOBAL = dis.opmap["STORE_GLOBAL"]
+POP_TOP = dis.opmap["POP_TOP"]
+POP_BLOCK = dis.opmap["POP_BLOCK"]
 STORE_OPS = STORE_NAME, STORE_GLOBAL
 EXTENDED_ARG = dis.EXTENDED_ARG
 HAVE_ARGUMENT = dis.HAVE_ARGUMENT
 
 # enum identifiers for scan_opcodes()
-STORE = 'store'
-ABS_IMPORT = 'absolute_import'
-REL_IMPORT = 'relative_import'
+STORE = "store"
+ABS_IMPORT = "absolute_import"
+REL_IMPORT = "relative_import"
 
 # Python 2 or 3 (int)
 PY_VERSION = sys.version_info[0]
 
 # Output file for dag visualization
-DAG_OUT = 'dag.dot'
+DAG_OUT = "dag.dot"
 
 
 def abs_mod_name(module, root_dir):
@@ -46,12 +46,12 @@ def abs_mod_name(module, root_dir):
     NOTE: no trailing '/' in root_dir
     """
     abs_path = os.path.abspath(module.__file__)
-    rel_path = abs_path[len(root_dir):]
-    path_parts = rel_path.split('/')[1:]
+    rel_path = abs_path[len(root_dir) :]
+    path_parts = rel_path.split("/")[1:]
     path_parts[-1] = path_parts[-1][:-3]
-    if path_parts[-1] == '__init__':
+    if path_parts[-1] == "__init__":
         del path_parts[-1]
-    mod_name = '.'.join(path_parts)
+    mod_name = ".".join(path_parts)
     return mod_name
 
 
@@ -78,12 +78,14 @@ def get_modules_from_file(script, root_dir=None, use_sys_path=False):
 
     if not use_sys_path:
         # Filter out standard library imports
-        modules = {name: mod for name, mod in modules.items() if not
-                   is_std_lib_module(name, PY_VERSION)}
+        modules = {
+            name: mod
+            for name, mod in modules.items()
+            if not is_std_lib_module(name, PY_VERSION)
+        }
 
     # All the module names have to be as references from the root directory
-    modules = {abs_mod_name(mod, root_dir): mod for mod in
-               modules.values()}
+    modules = {abs_mod_name(mod, root_dir): mod for mod in modules.values()}
 
     return modules
 
@@ -96,15 +98,15 @@ def get_modules_in_dir(root_dir, ignore_venv=True):
     mods = {}
 
     for top, dir, files in os.walk(root_dir):
-        if ignore_venv and ('venv' in top or 'virt' in top):
+        if ignore_venv and ("venv" in top or "virt" in top):
             continue
         for nm in files:
-            if nm[-3:] == '.py':
+            if nm[-3:] == ".py":
                 mod_file = os.path.abspath(os.path.join(top, nm))
                 mod_path = os.path.dirname(mod_file)
-                mod_name = mod_file[len(root_dir) + 1:].replace('/', '.')[:-3]
-                if '__init__' in mod_name:
-                    mod_name = mod_name.replace('.__init__', '')
+                mod_name = mod_file[len(root_dir) + 1 :].replace("/", ".")[:-3]
+                if "__init__" in mod_name:
+                    mod_name = mod_name.replace(".__init__", "")
                 if mod_name not in mods:
                     mod = Module(mod_name, file=mod_file, path=mod_path)
                     mods[mod_name] = mod
@@ -131,7 +133,7 @@ def _unpack_opargs(code):
         for i in range(0, len(code), 2):
             op = code[i]
             if op >= HAVE_ARGUMENT:
-                next_code = code[i+1]
+                next_code = code[i + 1]
                 arg = next_code | extended_arg
                 extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
             else:
@@ -142,7 +144,7 @@ def _unpack_opargs(code):
         while i < len(code):
             op = ord(code[i])
             if op >= HAVE_ARGUMENT:
-                arg = ord(code[i+1])
+                arg = ord(code[i + 1])
                 i += 3
             else:
                 arg = None
@@ -176,17 +178,19 @@ def scan_opcodes(compiled):
     code = compiled.co_code
     names = compiled.co_names
     consts = compiled.co_consts
-    opargs = [(op, arg) for _, op, arg in _unpack_opargs(code)
-              if op != EXTENDED_ARG]
+    opargs = [(op, arg) for _, op, arg in _unpack_opargs(code) if op != EXTENDED_ARG]
     for i, (op, oparg) in enumerate(opargs):
         if op in STORE_OPS:
             yield STORE, (names[oparg],)
             continue
-        if (op == IMPORT_NAME and i >= 2
-                and opargs[i-1][0] == opargs[i-2][0] == LOAD_CONST):
-            level = consts[opargs[i-2][1]]
-            fromlist = consts[opargs[i-1][1]] or []
-            if (level == 0 or level == -1):
+        if (
+            op == IMPORT_NAME
+            and i >= 2
+            and opargs[i - 1][0] == opargs[i - 2][0] == LOAD_CONST
+        ):
+            level = consts[opargs[i - 2][1]]
+            fromlist = consts[opargs[i - 1][1]] or []
+            if level == 0 or level == -1:
                 yield ABS_IMPORT, (fromlist, names[oparg])
             else:
                 yield REL_IMPORT, (level, fromlist, names[oparg])
@@ -206,9 +210,9 @@ def get_fq_immediate_deps(all_mods, module):
     """
     fq_deps = defaultdict(list)
 
-    with open(module.__file__, 'r') as fp:
+    with open(module.__file__, "r") as fp:
         path = os.path.dirname(module.__file__)
-        compiled = compile(fp.read() + '\n', path, 'exec')
+        compiled = compile(fp.read() + "\n", path, "exec")
         for op, args in scan_opcodes(compiled):
 
             if op == STORE:
@@ -217,12 +221,14 @@ def get_fq_immediate_deps(all_mods, module):
 
             if op == ABS_IMPORT:
                 names, top = args
-                if (not is_std_lib_module(top.split('.')[0], PY_VERSION) or
-                        top in all_mods):
+                if (
+                    not is_std_lib_module(top.split(".")[0], PY_VERSION)
+                    or top in all_mods
+                ):
                     if not names:
                         fq_deps[top].append([])
                     for name in names:
-                        fq_name = top + '.' + name
+                        fq_name = top + "." + name
                         if fq_name in all_mods:
                             # just to make sure it's in the dict
                             fq_deps[fq_name].append([])
@@ -267,24 +273,33 @@ def mod_dict_to_dag(mod_dict, graph_name):
 
 def get_args():
     """ Parse and return command line args. """
-    parser = argparse.ArgumentParser(description='Visualize imports of a given'
-                                     ' python script.')
-    parser.add_argument('path', type=str,
-                        help='main python script/entry point for project, or'
-                        ' the root directory of the project')
-    parser.add_argument('-r', '--root', dest='alt_root', type=str,
-                        help='alternate root, if the project root differs from'
-                        ' the directory that the main script is in')
+    parser = argparse.ArgumentParser(
+        description="Visualize imports of a given" " python script."
+    )
+    parser.add_argument(
+        "path",
+        type=str,
+        help="main python script/entry point for project, or"
+        " the root directory of the project",
+    )
+    parser.add_argument(
+        "-r",
+        "--root",
+        dest="alt_root",
+        type=str,
+        help="alternate root, if the project root differs from"
+        " the directory that the main script is in",
+    )
     # TODO implement ability to ignore certain modules
     # parser.add_argument('-i', '--ignore', dest='ignorefile', type=str,
-                        # help='file that contains names of modules to ignore')
+    # help='file that contains names of modules to ignore')
     return parser.parse_args()
 
 
 def main():
 
     args = get_args()
-    if args.path[-3:] == '.py':
+    if args.path[-3:] == ".py":
         script = args.path
         root_dir = os.path.dirname(args.path)
         if args.alt_root:
@@ -297,14 +312,14 @@ def main():
     add_immediate_deps_to_modules(mod_dict)
     print("Module dependencies:")
     for name, module in sorted(mod_dict.items()):
-        print('\n' + name)
+        print("\n" + name)
         for dep in module.direct_imports:
-            print('    ' + dep)
+            print("    " + dep)
 
     project_name = os.path.basename(os.path.abspath(root_dir))
     dag = mod_dict_to_dag(mod_dict, project_name)
     dag.view()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

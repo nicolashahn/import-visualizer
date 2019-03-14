@@ -1,4 +1,4 @@
-''' Module A. '''
+""" Module A. """
 
 
 def func_a(arg):

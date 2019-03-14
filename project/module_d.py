@@ -1,3 +1,3 @@
-''' This file is NOT imported by main.py. '''
+""" This file is NOT imported by main.py. """
 
 print("You shouldn't see me!")
